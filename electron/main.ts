@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from "electron";
+import { app, BrowserWindow, globalShortcut, Menu } from "electron";
 import path from "path";
 
 require("./ipc/handlers");
@@ -27,7 +27,9 @@ function createWindow() {
     win.loadFile(path.join(__dirname, "../renderer/dist/index.html"));
   }
 
-  win.webContents.openDevTools();
+  globalShortcut.register("F12", () => {
+    win.webContents.openDevTools();
+  });
 }
 
 app.whenReady().then(createWindow);
