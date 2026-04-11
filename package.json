@@ -1,0 +1,18 @@
+{
+  "name": "moex-loader",
+  "packageManager": "yarn@4.9.2",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "npm run dev --prefix renderer",
+    "dev:electron": "wait-on http://localhost:5173 && cross-env ELECTRON_START_URL=http://localhost:5173 electron .",
+    "build": "npm run build --prefix renderer",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^41.2.0",
+    "wait-on": "^9.0.5"
+  }
+}
