@@ -8,5 +8,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "types": ["node"]
-  }
+  },
+
+  "include": ["**/*.ts"]
 }

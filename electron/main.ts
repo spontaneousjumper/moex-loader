@@ -1,9 +1,11 @@
-const { app, BrowserWindow } = require("electron");
-const path = require("path");
+import { app, BrowserWindow, Menu } from "electron";
+import path from "path";
 
 require("./ipc/handlers");
 
 function createWindow() {
+  Menu.setApplicationMenu(null);
+
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -13,13 +15,19 @@ function createWindow() {
     },
   });
 
-  const url = process.env.ELECTRON_START_URL;
+  const url = process.env.ELECTRON_START_URL ?? "http://localhost:5173";
 
-  if (url) {
+  console.log("DEV URL:", url);
+
+  const isDev = process.env.NODE_ENV !== "production";
+
+  if (isDev) {
     win.loadURL(url);
   } else {
     win.loadFile(path.join(__dirname, "../renderer/dist/index.html"));
   }
+
+  win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
