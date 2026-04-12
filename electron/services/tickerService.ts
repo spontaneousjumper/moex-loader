@@ -1,18 +1,24 @@
 import axios from "axios";
 
-export async function fetchTickers(): Promise<string[]> {
+export type Ticker = {
+  secid: string;
+  name: string;
+};
+
+export async function fetchTickers(): Promise<Ticker[]> {
   const res = await axios.get(
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json",
     {
       params: {
-        "securities.columns": "SECID",
+        "securities.columns": "SECID,SHORTNAME",
       },
     },
   );
 
-  const tickers: string[] = res.data.securities.data.map(
-    (row: [string]) => row[0],
-  );
+  const rows = res.data.securities.data;
 
-  return Array.from(new Set(tickers)).sort();
+  return rows.map((row: any) => ({
+    secid: row[0],
+    name: row[1],
+  }));
 }

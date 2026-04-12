@@ -15,17 +15,15 @@ import ruRU from "antd/locale/ru_RU";
 import { useEffect, useMemo, useState } from "react";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
-dayjs.tz.setDefault("Europe/Moscow");
 
 const { RangePicker } = DatePicker;
 const { Title } = Typography;
 const { Sider, Content } = Layout;
+
+type Ticker = {
+  secid: string;
+  name: string;
+};
 
 const INTERVAL_OPTIONS = [
   { value: 1, label: "1 минута" },
@@ -35,7 +33,7 @@ const INTERVAL_OPTIONS = [
 ];
 
 function App() {
-  const [allTickers, setAllTickers] = useState<string[]>([]);
+  const [allTickers, setAllTickers] = useState<Ticker[]>([]);
   const [search, setSearch] = useState("");
   const [tickers, setTickers] = useState<string[]>([]);
 
@@ -50,7 +48,6 @@ function App() {
   useEffect(() => {
     window.api.getTickers().then((data) => setAllTickers(data ?? []));
 
-    // загрузка сохранённой папки
     window.api.getSavedFolder?.().then((f: string) => {
       if (f) setFolder(f);
     });
@@ -74,13 +71,18 @@ function App() {
 
   const filteredTickers = useMemo(() => {
     const q = search.toLowerCase();
-    return allTickers.filter((t) => t.toLowerCase().includes(q));
+
+    return allTickers.filter(
+      (t) =>
+        t.secid.toLowerCase().includes(q) || t.name.toLowerCase().includes(q),
+    );
   }, [allTickers, search]);
 
   const sortedTickers = useMemo(() => {
     const selected = new Set(tickers);
+
     return [...filteredTickers].sort(
-      (a, b) => Number(selected.has(b)) - Number(selected.has(a)),
+      (a, b) => Number(selected.has(b.secid)) - Number(selected.has(a.secid)),
     );
   }, [filteredTickers, tickers]);
 
@@ -98,14 +100,13 @@ function App() {
   };
 
   const disabledDate = (current: Dayjs) => {
-    return current && current > dayjs().tz("Europe/Moscow");
+    return current && current > dayjs();
   };
 
   const validate = () => {
     if (!tickers.length) return message.warning("Выбери тикеры");
     if (!dates) return message.warning("Выбери даты");
     if (!folder) return message.warning("Выбери папку");
-
     return true;
   };
 
@@ -120,8 +121,8 @@ function App() {
       await window.api.download({
         tickers,
         interval,
-        from: dates![0].tz("Europe/Moscow").format("YYYY-MM-DD HH:mm"),
-        to: dates![1].tz("Europe/Moscow").format("YYYY-MM-DD HH:mm"),
+        from: dates![0].format("YYYY-MM-DD HH:mm"),
+        to: dates![1].format("YYYY-MM-DD HH:mm"),
         folder,
       });
 
@@ -138,7 +139,7 @@ function App() {
       <Layout style={{ height: "100vh" }}>
         <Sider width={300} style={{ background: "#111", padding: 12 }}>
           <Title level={5} style={{ color: "#fff" }}>
-            Тикеры
+            Акции
           </Title>
 
           <Input
@@ -153,11 +154,11 @@ function App() {
             dataSource={sortedTickers}
             style={{ height: "80vh", overflow: "auto" }}
             renderItem={(item) => {
-              const selected = tickers.includes(item);
+              const selected = tickers.includes(item.secid);
 
               return (
                 <List.Item
-                  onClick={() => toggleTicker(item)}
+                  onClick={() => toggleTicker(item.secid)}
                   style={{
                     cursor: "pointer",
                     padding: "6px 10px",
@@ -167,14 +168,25 @@ function App() {
                     background: selected ? "#1f1f1f" : "transparent",
                   }}
                 >
-                  <span
-                    style={{
-                      color: selected ? "#fff" : "#aaa",
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {item}
-                  </span>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span
+                      style={{
+                        color: selected ? "#fff" : "#aaa",
+                        fontFamily: "monospace",
+                      }}
+                    >
+                      {item.name}
+                    </span>
+
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "#666",
+                      }}
+                    >
+                      {item.secid}
+                    </span>
+                  </div>
                 </List.Item>
               );
             }}
