@@ -20,11 +20,6 @@ const { RangePicker } = DatePicker;
 const { Title } = Typography;
 const { Sider, Content } = Layout;
 
-type Ticker = {
-  secid: string;
-  name: string;
-};
-
 const INTERVAL_OPTIONS = [
   { value: 1, label: "1 минута" },
   { value: 10, label: "10 минут" },

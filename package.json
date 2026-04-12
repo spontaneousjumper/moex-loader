@@ -1,26 +1,47 @@
 {
   "name": "moex-loader",
+  "version": "1.0.0",
   "packageManager": "yarn@4.9.2",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "concurrently \"yarn dev:renderer\" \"yarn dev:electron\"",
     "dev:renderer": "yarn --cwd renderer dev",
-    "dev:electron": "yarn build:electron && cross-env ELECTRON_START_URL=http://localhost:5173 electron dist-electron/main.js",
+    "dev:electron": "cross-env ELECTRON_START_URL=http://localhost:5173 wait-on http://localhost:5173 && yarn build:electron && electron dist-electron/main.js",
+    "build:renderer": "yarn --cwd renderer build",
     "build:electron": "tsc -p electron/tsconfig.json",
-    "build": "npm run build --prefix renderer"
+    "build": "yarn build:renderer && yarn build:electron",
+    "build:app": "yarn build && electron-builder"
+  },
+  "build": {
+    "appId": "com.moex.loader",
+    "productName": "MOEX Loader",
+    "files": [
+      "dist-electron/**/*",
+      "renderer/dist/**/*",
+      "assets/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    }
   },
   "dependencies": {
     "axios": "^1.15.0",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
-    "electron": "^41.2.0",
     "electron-store": "^11.0.2",
     "wait-on": "^9.0.5",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "electron": "^41.2.0",
     "@types/electron-store": "^3.2.2",
     "@types/node": "^25.6.0",
+    "electron-builder": "26.8.1",
     "typescript": "^6.0.2"
   }
 }

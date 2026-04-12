@@ -19,11 +19,16 @@ declare global {
     message: string;
   }
 
+  interface Ticker {
+    secid: string;
+    name: string;
+  }
   interface Window {
     api: {
       selectFolder: () => Promise<string>;
+      getSavedFolder: () => Promise<string>;
       download: (params: DownloadParams) => Promise<{ success: boolean }>;
-      getTickers: () => Promise<string[]>;
+      getTickers: () => Promise<Ticker[]>;
 
       onProgress: (callback: (data: ProgressEvent) => void) => () => void;
       onLog: (callback: (data: LogEvent) => void) => () => void;
