@@ -1,0 +1,25 @@
+[project]
+name = "moex-loader"
+version = "1.0.0"
+description = "Загрузчик котировок MOEX с интерфейсом PyQt6"
+requires-python = ">=3.10"
+dependencies = [
+    "PyQt6>=6.6",
+    "requests>=2.31",
+    "openpyxl>=3.1",
+]
+
+[project.scripts]
+moex-loader = "main:main"
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.0.0",
+]
+
+[tool.pyinstaller]
+# Эти параметры можно передать в командной строке, здесь они как напоминание
+name = "MOEX loader"
+onefile = true
+windowed = true
+icon = "icon.ico"
